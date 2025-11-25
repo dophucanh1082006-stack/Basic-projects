@@ -1,0 +1,171 @@
+#include<iostream>
+#include<string.h>
+#include<math.h>
+#include<iomanip>
+using namespace std;
+class Sinhvien {
+    protected: 
+      string masv, hoten;
+      float DMH;
+    public: 
+      Sinhvien() {
+          masv="";
+          hoten="";
+          DMH=0;
+      }
+      void nhap() {
+          cin.ignore();
+          cout<<"Nhap ma sinh vien(tc:tinchi,nc:nienche)VD:nc11243746: ";
+          getline(cin,masv);
+          cout<<"Nhap ho ten sinh vien: ";
+          getline(cin,hoten);
+
+      }
+      void in() {
+          cout<<setw(20)<<hoten<<setw(5)<<DMH;
+      }
+      virtual ~Sinhvien() {}
+      float getDMH() const { return DMH; }
+};
+class nienche : virtual public Sinhvien {
+    protected:
+      float cc,kt,dt;
+    public:
+    void nhap_nc() {
+    while (true) {
+        cout << "Nhap diem chuyen can: ";
+        if (!(cin >> cc)) {   // kiểm tra nhập sai
+            cout << "Nhap sai. Vui long nhap lai!\n";
+            cin.clear();
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+            continue;
+        }
+
+        cout << "Nhap diem kiem tra: ";
+        if (!(cin >> kt)) {
+            cout << "Nhap sai. Vui long nhap lai!\n";
+            cin.clear();
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+            continue;
+        }
+
+        cout << "Nhap diem thi: ";
+        if (!(cin >> dt)) {
+            cout << "Nhap sai. Vui long nhap lai!\n";
+            cin.clear();
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+            continue;
+        }
+
+        // Nếu 3 lần nhập đều đúng → thoát vòng lặp
+        break;
+    }
+
+
+    DMH = 0.1 * cc + 0.2 * kt + 0.7 * dt;
+}
+
+};
+class tinchi : virtual public Sinhvien {
+    protected:
+      float ktra,dthi;
+    public:
+    void nhap_tc() {
+        while (true) {
+
+        cout << "Nhap diem kiem tra: ";
+        if (!(cin >> ktra)) {
+            cout << "Nhap sai. Vui long nhap lai!\n";
+            cin.clear();
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+            continue;
+        }
+
+        cout << "Nhap diem thi: ";
+        if (!(cin >> dthi)) {
+            cout << "Nhap sai. Vui long nhap lai!\n";
+            cin.clear();
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+            continue;
+        }
+
+        break;
+    }
+
+
+        DMH=0.2*ktra+0.8*dthi;
+    }
+};
+class doituong: public nienche, public tinchi {
+    protected:
+      static float tb;
+      static int count;
+    public:
+      void nhap_dt() {
+          
+          nhap();
+          if (masv.find("nc")==0) 
+             nhap_nc();
+          else
+             nhap_tc();
+      }
+      void xeploai() {
+          if(DMH>=5.0&&dt>=5.0 || DMH>=5.0&&dthi>=5.0)
+            cout<<setw(20)<<"Khong phai hoc lai";
+          else
+            cout<<setw(20)<<"Hoc lai";
+      }
+      bool operator >(doituong a) {
+          if(this->DMH>a.DMH)
+            return true;
+           else
+            return false;
+      }
+      static void updateTB(float total, int n) {
+        tb = total / n;
+    }
+      static void intrungbinh() {
+          cout<<endl<<"Trung binh diem mon hoc: "<<tb;
+      }
+          
+};
+float doituong::tb = 0;
+int doituong::count = 0;
+int main() {
+    float s;
+    int n;
+    cout<<"Nhap so sinh vien: ";
+    cin>>n;
+    doituong *v= new doituong[100];
+    cout<<"\n====Nhap danh sach sinh vien====\n";
+    for(int i=0;i<n;i++) {
+        cout<<"Nhap sinh vien thu "<<i+1<<":\n";
+        v[i].nhap_dt();
+    }
+    for(int i=0;i<n;i++) {
+        for(int j=i+1;j<n;j++) {
+            if(v[i]>v[j]) {
+                doituong tg=v[i];
+                v[i]=v[j];
+                v[j]=tg;
+            }
+        }
+    }
+    cout<<"\n====Danh sach sinh vien====\n";
+    cout<<left<<setw(5)<<"STT"<<setw(20)<<"Ho ten"<<setw(5)<<"DMH"<<setw(10)<<"Xep loai"<<endl;
+    for(int i=0;i<n;i++) {
+        cout<<setw(5)<<i+1;
+        v[i].in();
+        v[i].xeploai();
+        cout<<endl;
+    }
+   
+    float total = 0;
+    for(int i=0;i<n;i++) {
+        total += v[i].getDMH();
+        }
+doituong::updateTB(total, n);
+ cout<<"------------------------------------------";
+doituong::intrungbinh();
+delete [] v;
+}
